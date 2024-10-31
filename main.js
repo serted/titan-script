@@ -23,25 +23,21 @@ const months=['января','февраля','марта','апреля','ма�
 $(document).ready(function() {
     $(document).on('click', '.buy:not(.scrolltoform)', function(e) {
         e.preventDefault();
-        
         const form = $('#myForm');
         let isValid = true;
-        
         $('.error').removeClass('error');
-        
         $('input[required], select[required]').each(function() {
             if (!$(this).val()) {
                 $(this).addClass('error');
                 isValid = false;
             }
         });
-        
         if (!isValid || !validateCheckboxGroups()) {
             return false;
         }
-        
         const quantity = $('.complect-variant.active .complect-info-count-data-header').text();
-        
+        const loadingSpinner = $('<div class="loading-spinner"></div>');
+        $('body').append(loadingSpinner); 
         const formData = {
             type: $('input[name="type"]:checked').data('type'),
             color: $('input[name="color"]:checked').data('color'),
@@ -53,13 +49,15 @@ $(document).ready(function() {
             city: $('select[name="city"]').val(),
             quantity: quantity
         };
-        
         $.ajax({
             url: 'send.php',
             type: 'POST',
             data: formData,
             success: function(response) {
                 window.location.href = 'thanks.php';
+            },
+            error: function() {
+                $('.loading-spinner').remove();
             }
         });
     });
